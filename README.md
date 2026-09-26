@@ -1,14 +1,56 @@
 # 青嵐志 · 3Dgame-2
 
-Babylon.js migration workspace.
+## P0.27.1 — Babylon.js Only
 
-P0.27.0 的目標是把瀏覽器 3D runtime 從 Three.js 遷移到 Babylon.js，並建立商業級仙俠 LookDev / Rendering：PBR、Cascaded Shadows、SSAO、ACES tone mapping、節制 Bloom、局部霧，以及依提供的參考圖校準的色彩分離與 density curve。
+此分支採 **單一 3D 引擎架構**：瀏覽器端 3D runtime、角色、怪物、世界、編輯器與 LookDev 全部統一使用 Babylon.js。
 
-目前完整 P0.27.0 source package 含大量 GLB / VRM / texture binary，應透過 Git LFS 匯入。GitHub API 工作區先建立 main 與 migration branch，完整 source / LFS 應推入 `feat/babylon-p0270` 後再合併。
+舊的 Three.js runtime 不再保留、不再隔離、不再做相容層，也不允許重新混入專案。
 
-## Branch policy
+### Engine stack
 
-- `main`：只接受可發佈版本
-- `feat/**`：引擎、玩法、LookDev 功能
-- `fix/**`：聚焦回歸修正
-- merge 前要求 Babylon runtime boundary、typecheck、tests、production build 全部通過
+- @babylonjs/core 9.28.0
+- @babylonjs/loaders 9.28.0
+- @babylonjs/materials 9.28.0
+- Babylon Scene / Engine / AnimationGroup / Skeleton / MorphTarget / PBR / GLB loader
+- renderer-independent authoritative server navigation
+
+### Removed
+
+- src/legacy-three/
+- Three.js / three-pathfinding / @pixiv/three-vrm / @types/three dependencies
+- old Three.js regression tests
+- old renderer verification scripts and compatibility exclusions
+
+### Commercial LookDev / Rendering
+
+參考提供的仙俠範例圖，渲染採 Babylon-native pipeline：
+
+- semantic PBR material classification
+- warm key + cool fill
+- cascaded shadows
+- SSAO
+- reflection probes
+- ACES tone mapping
+- restrained bloom
+- localized atmosphere / mist
+- reference-matched teal/blue-grey shadows + warm maple/peach highlights
+
+### Release gate
+
+PR 合併前必須通過：
+
+```bash
+npm run verify:babylon
+npm run verify:current
+npm run verify:package
+npm run verify:fit-garments
+npm run typecheck
+npm run test
+npm run build
+```
+
+`verify:babylon` 會直接阻擋舊 renderer source directory、舊 renderer imports 與舊 renderer dependencies。
+
+### Git / LFS
+
+GLB / VRM / FBX / HDR / EXR / PNG / JPG 等大型資產使用 Git LFS。完整 source 與 LFS objects 全部進入此 branch 後，CI 全綠才合併至 `main`。
