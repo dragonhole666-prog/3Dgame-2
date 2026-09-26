@@ -1,0 +1,55 @@
+name: Babylon-Only Release Gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "feat/**"
+      - "fix/**"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install --no-audit --no-fund
+          fi
+
+      - name: Babylon-only boundary
+        run: npm run verify:babylon
+
+      - name: Current architecture gate
+        run: npm run verify:current
+
+      - name: Package integrity
+        run: npm run verify:package
+
+      - name: Equipment / garment gate
+        run: npm run verify:fit-garments
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm run test
+
+      - name: Production build
+        run: npm run build
