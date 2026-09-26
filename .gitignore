@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.vite/
+.runtime/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
