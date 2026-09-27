@@ -1,0 +1,33 @@
+name: Babylon-Only Release Gate
+on:
+  push:
+    branches: [main, 'feat/**', 'fix/**']
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Babylon-only architecture
+        run: npm run verify:babylon
+      - name: Current release contracts
+        run: npm run verify:current
+      - name: Package integrity
+        run: npm run verify:package
+      - name: Equipment fit metadata
+        run: npm run verify:fit-garments
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Tests
+        run: npm run test
+      - name: Production build
+        run: npm run build

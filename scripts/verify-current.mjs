@@ -1,0 +1,35 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8').replace(/^\uFEFF/,'');
+const exists=p=>fs.existsSync(path.join(root,p));
+const must=(ok,msg)=>{if(!ok)throw new Error(`P0.27.1 VERIFY FAIL: ${msg}`);console.log('PASS ',msg);};
+const pkg=JSON.parse(read('package.json'));
+const game=read('src/client/core/game.ts');
+const character=read('src/client/character/character.ts');
+const equipment=read('src/client/character/babylon-equipment-runtime.ts');
+const curated=read('src/client/character/curated-equipment.ts');
+const monster=read('src/client/character/monster-model.ts');
+const world=read('src/client/world/world-renderer.ts');
+const look=read('src/client/rendering/commercial-lookdev.ts');
+const grade=read('src/client/rendering/cinematic-rendering-pipeline.ts');
+const navigation=read('src/shared/domains/navigation.ts');
+
+must(pkg.version==='0.27.1','package release is P0.27.1');
+must(pkg.dependencies?.['@babylonjs/core']==='9.28.0'&&pkg.dependencies?.['@babylonjs/loaders']==='9.28.0','Babylon runtime packages are pinned');
+must(!exists('src/legacy-'+'three'),'former renderer source tree is physically absent');
+must(/new Engine\(/.test(game)&&/new Scene\(/.test(game)&&/CommercialLookDev/.test(game),'game bootstrap owns a Babylon Engine/Scene/LookDev stack');
+must(/SceneLoader\.ImportMeshAsync/.test(character)&&/BabylonCharacterAnimationRuntime/.test(character)&&/BabylonEquipmentRuntime/.test(character)&&/BabylonExpressionRuntime/.test(character),'character runtime is fully backed by Babylon modules');
+must(/curatedEquipmentDefinition/.test(equipment)&&/getTransformNode/.test(equipment)&&/SceneLoader\.ImportMeshAsync/.test(equipment),'equipment uses Babylon GLB loading, avatar sockets and curated asset registry');
+must(/ice-mythic-sword\.glb/.test(curated)&&/mythic_demon_bow\.glb/.test(curated),'authored weapon GLBs remain in the Babylon equipment registry');
+must(/measureHumanoidSkeletonFrame/.test(monster)&&/SceneLoader\.ImportMeshAsync/.test(monster),'monster GLBs use Babylon and skeleton-first scale calibration');
+must(/SceneLoader\.ImportMeshAsync/.test(world)&&/applyXianxiaWorldArtDirection/.test(world),'world renderer imports GLB and applies semantic Babylon PBR treatment');
+must(/CascadedShadowGenerator/.test(look)&&/SSAO2RenderingPipeline/.test(look)&&/ReflectionProbe/.test(look),'commercial LookDev includes cascaded shadows, SSAO and reflections');
+must(/TONEMAPPING_ACES/.test(grade)&&/qinglanReferenceGradeFragmentShader/.test(grade)&&/meanLuminance:\.398/.test(grade),'reference grade uses ACES and measured target density');
+must(/class Heap/.test(navigation)&&/function route/.test(navigation)&&!/babylonjs/.test(navigation.toLowerCase()),'authoritative navigation remains renderer-independent A*');
+must(exists('src/assets/xianxia_world.glb'),'main world GLB is packaged');
+must(exists('public/assets/user-equipment/ice-mythic-sword.glb'),'user mythic sword GLB is packaged');
+must(exists('.github/workflows/ci.yml'),'GitHub Babylon release gate is packaged');
+console.log('P0.27.1 CURRENT VERIFICATION: PASS');

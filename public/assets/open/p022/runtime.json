@@ -1,0 +1,148 @@
+{
+  "release": "P0.27.1",
+  "provider": "Babylon.js local character library (VRM/glTF assets)",
+  "enabled": true,
+  "defaultCandidate": "qinglan-main",
+  "candidates": [
+    {
+      "id": "qinglan-main",
+      "label": "青嵐志主角",
+      "character": "/assets/open/p022/characters/qinglan-main.vrm",
+      "format": "VRM 0.x / glTF 2.0",
+      "meshes": 3,
+      "skins": 3,
+      "nodes": 60,
+      "animations": 0,
+      "humanoidBones": 54,
+      "license": "CC0"
+    },
+    {
+      "id": "base-female",
+      "label": "Base Female",
+      "character": "/assets/open/p0238/characters/01_Base_Female.vrm",
+      "format": "VRM 0.x / glTF 2.0",
+      "meshes": 2,
+      "skins": 2,
+      "nodes": 62,
+      "animations": 0,
+      "humanoidBones": 54,
+      "license": "Other"
+    },
+    {
+      "id": "base-male",
+      "label": "Base Male",
+      "character": "/assets/open/p0238/characters/02_Base_Male.vrm",
+      "format": "VRM 0.x / glTF 2.0",
+      "meshes": 2,
+      "skins": 2,
+      "nodes": 62,
+      "animations": 0,
+      "humanoidBones": 54,
+      "license": "Other"
+    },
+    {
+      "id": "darkness-shibu",
+      "label": "Darkness Shibu",
+      "character": "/assets/open/p0238/characters/03_Darkness_Shibu.vrm",
+      "format": "VRM 0.x / glTF 2.0",
+      "meshes": 3,
+      "skins": 3,
+      "nodes": 154,
+      "animations": 0,
+      "humanoidBones": 54,
+      "license": "CC0"
+    },
+    {
+      "id": "vivi",
+      "label": "Vivi",
+      "character": "/assets/open/p0238/characters/04_Vivi.vrm",
+      "format": "VRM 0.x / glTF 2.0",
+      "meshes": 3,
+      "skins": 3,
+      "nodes": 157,
+      "animations": 0,
+      "humanoidBones": 54,
+      "license": "CC0"
+    },
+    {
+      "id": "vita",
+      "label": "Vita",
+      "character": "/assets/open/p0238/characters/05_Vita.vrm",
+      "format": "VRM 0.x / glTF 2.0",
+      "meshes": 3,
+      "skins": 3,
+      "nodes": 160,
+      "animations": 0,
+      "humanoidBones": 54,
+      "license": "CC0"
+    },
+    {
+      "id": "victoria-rubin",
+      "label": "Victoria Rubin",
+      "character": "/assets/open/p0238/characters/06_Victoria_Rubin.vrm",
+      "format": "VRM 0.x / glTF 2.0",
+      "meshes": 3,
+      "skins": 3,
+      "nodes": 167,
+      "animations": 0,
+      "humanoidBones": 54,
+      "license": "CC0"
+    },
+    {
+      "id": "hair-female",
+      "label": "HairSample Female",
+      "character": "/assets/open/p0238/characters/07_HairSample_Female.vrm",
+      "format": "VRM 0.x / glTF 2.0",
+      "meshes": 3,
+      "skins": 3,
+      "nodes": 124,
+      "animations": 0,
+      "humanoidBones": 54,
+      "license": "CC0"
+    },
+    {
+      "id": "hair-male",
+      "label": "HairSample Male",
+      "character": "/assets/open/p0238/characters/08_HairSample_Male.vrm",
+      "format": "VRM 0.x / glTF 2.0",
+      "meshes": 3,
+      "skins": 3,
+      "nodes": 96,
+      "animations": 0,
+      "humanoidBones": 54,
+      "license": "CC0"
+    },
+    {
+      "id": "sakurada-fumiriya",
+      "label": "Sakurada Fumiriya",
+      "character": "/assets/open/p0238/characters/09_Sakurada_Fumiriya.vrm",
+      "format": "VRM 0.x / glTF 2.0",
+      "meshes": 3,
+      "skins": 3,
+      "nodes": 112,
+      "animations": 0,
+      "humanoidBones": 54,
+      "license": "CC0"
+    },
+    {
+      "id": "sendagaya-shino",
+      "label": "Sendagaya Shino",
+      "character": "/assets/open/p0238/characters/10_Sendagaya_Shino.vrm",
+      "format": "VRM 0.x / glTF 2.0",
+      "meshes": 3,
+      "skins": 3,
+      "nodes": 153,
+      "animations": 0,
+      "humanoidBones": 54,
+      "license": "CC0"
+    }
+  ],
+  "reason": "P0.23.8 adds ten user-supplied VRM candidates to the existing Humanoid runtime. Character selection is persisted locally and switches keep the last validated avatar visible until the new VRM passes the Humanoid gate.",
+  "architecture": {
+    "avatar": "VRM",
+    "equipment": "GLB",
+    "animation": "VRMA/GLB manifest",
+    "runtime": "TypeScript composition",
+    "customization": "runtime face/body sculpt"
+  }
+}

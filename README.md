@@ -1,56 +1,33 @@
-# 青嵐志 · 3Dgame-2
+# 青嵐志 · P0.27.1 Babylon.js Only
 
-## P0.27.1 — Babylon.js Only
+此版本將瀏覽器 3D runtime 完整統一為 **Babylon.js**。舊 renderer source tree 已實體刪除，不保留平行 scene graph、不提供舊引擎 fallback，也不允許在 client、editor 或 authoritative navigation 重新引入第二套 3D runtime。
 
-此分支採 **單一 3D 引擎架構**：瀏覽器端 3D runtime、角色、怪物、世界、編輯器與 LookDev 全部統一使用 Babylon.js。
+## Runtime architecture
 
-舊的 Three.js runtime 不再保留、不再隔離、不再做相容層，也不允許重新混入專案。
+- `src/client/core/game.ts` — Babylon `Engine` / `Scene` / camera / frame loop
+- `src/client/world/world-renderer.ts` — Babylon GLB world loading
+- `src/client/character/character.ts` — Babylon character facade
+- `src/client/character/babylon-character-animation-runtime.ts` — `AnimationGroup` animation coordinator
+- `src/client/character/babylon-equipment-runtime.ts` — GLB equipment, sockets and skeleton mapping
+- `src/client/character/babylon-expression-runtime.ts` — Babylon morph-target expressions
+- `src/client/character/monster-model.ts` — Babylon monster/Boss loading and skeleton-first scale calibration
+- `src/client/rendering/commercial-lookdev.ts` — commercial lighting/shadow/SSAO/reflection pipeline
+- `src/client/rendering/cinematic-rendering-pipeline.ts` — ACES + reference-matched color grade
+- `src/client/rendering/xianxia-visual-style.ts` — semantic PBR material standardization
+- `src/shared/domains/navigation.ts` — renderer-independent bounded A*
 
-### Engine stack
+## LookDev target
 
-- @babylonjs/core 9.28.0
-- @babylonjs/loaders 9.28.0
-- @babylonjs/materials 9.28.0
-- Babylon Scene / Engine / AnimationGroup / Skeleton / MorphTarget / PBR / GLB loader
-- renderer-independent authoritative server navigation
+提供的仙俠參考圖只作為 **著色、光影、材質與最終成色** 的 LookDev 目標，不複製其場景配置。渲染管線採暖色方向光、冷色環境補光、Cascaded Shadows、SSAO2、Reflection Probe、ACES tone mapping、節制 Bloom、局部霧與 reference grade，避免高飽和塑膠感與廉價卡通質感。
 
-### Removed
+參考圖校準值：mean luminance `0.398`、median `0.334`、shadow occupancy `0.213`、highlight occupancy `0.110`。
 
-- src/legacy-three/
-- Three.js / three-pathfinding / @pixiv/three-vrm / @types/three dependencies
-- old Three.js regression tests
-- old renderer verification scripts and compatibility exclusions
+## Git workflow
 
-### Commercial LookDev / Rendering
+- `main`：可發佈版本
+- `feat/**`：功能、引擎、LookDev
+- `fix/**`：回歸修正
+- GLB / VRM / FBX / HDR / EXR / PNG / JPG 使用 Git LFS
+- PR 合併前：`npm run verify:babylon` → `npm run verify:current` → `npm run typecheck` → `npm run test` → `npm run build`
 
-參考提供的仙俠範例圖，渲染採 Babylon-native pipeline：
-
-- semantic PBR material classification
-- warm key + cool fill
-- cascaded shadows
-- SSAO
-- reflection probes
-- ACES tone mapping
-- restrained bloom
-- localized atmosphere / mist
-- reference-matched teal/blue-grey shadows + warm maple/peach highlights
-
-### Release gate
-
-PR 合併前必須通過：
-
-```bash
-npm run verify:babylon
-npm run verify:current
-npm run verify:package
-npm run verify:fit-garments
-npm run typecheck
-npm run test
-npm run build
-```
-
-`verify:babylon` 會直接阻擋舊 renderer source directory、舊 renderer imports 與舊 renderer dependencies。
-
-### Git / LFS
-
-GLB / VRM / FBX / HDR / EXR / PNG / JPG 等大型資產使用 Git LFS。完整 source 與 LFS objects 全部進入此 branch 後，CI 全綠才合併至 `main`。
+首次安裝依賴後需提交 `package-lock.json`；之後 CI 可由 `npm install` 切換為 `npm ci`。
