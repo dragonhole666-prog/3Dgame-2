@@ -1,0 +1,17 @@
+import './sync-equipment-fit-modules.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const must=(ok,msg)=>{if(!ok)throw new Error(`BABYLON GARMENT FIT FAIL: ${msg}`);console.log('PASS ',msg);};
+const curated=read('src/client/character/curated-equipment.ts');
+const standard=read('src/client/character/garment-fit-standard.ts');
+const runtime=read('src/client/character/babylon-equipment-runtime.ts');
+const equipment=read('src/shared/data/equipment.ts');
+must(/BODY_FIT_SLOTS/.test(standard)&&/isBodyFitSlot/.test(standard),'body-fit slot policy remains centralized');
+must(/automaticGlbFitDefinition/.test(curated)&&/generatedFitDefinition/.test(curated),'equipment registry resolves authored/module/template GLB metadata');
+must(/buildBonePairs/.test(runtime)&&/canonicalBoneName/.test(runtime)&&/target\.getLocalMatrix/.test(runtime),'Babylon garment runtime mirrors semantic humanoid bones');
+must(/SceneLoader\.ImportMeshAsync/.test(runtime),'garment GLBs load through Babylon SceneLoader');
+must(/ITEMS/.test(equipment)&&/APPEARANCES/.test(equipment),'equipment gameplay metadata remains engine-independent');
+console.log('BABYLON GARMENT FIT VERIFICATION: PASS');

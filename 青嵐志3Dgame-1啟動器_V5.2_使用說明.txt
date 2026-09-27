@@ -1,0 +1,31 @@
+﻿青嵐志3Dgame-1啟動器 V5.2 — GitHub 上傳修正版
+
+這版修正 V5.1 的 Clone 誤判問題。
+
+你提供的 github_sync.log 顯示：
+- Git 正常
+- GitHub CLI 正常
+- GitHub 已登入
+- gh auth setup-git 正常
+- 失敗發生在 clone 階段
+- 記錄內容只有正常的「Cloning into ...」進度文字
+
+原因：
+Windows PowerShell 5.1 會把 Git / GitHub CLI 寫到 stderr 的正常進度資訊包裝成 NativeCommandError。
+V5.1 的背景工作又使用 ErrorActionPreference=Stop，因此在真正檢查 ExitCode 之前就被誤判為失敗。
+
+V5.2：
+1. Native Git / gh 指令執行時暫時使用 ErrorActionPreference=Continue。
+2. 成功與否只看 native process ExitCode。
+3. stderr 仍完整寫入 github_sync.log，不會吃掉真正錯誤。
+4. clone 加入 --no-tags，減少不必要下載。
+5. 背景工作關閉 GIT_TERMINAL_PROMPT，避免隱藏互動造成卡住。
+
+建議：
+- 分支選 feat/babylon-p0270
+- 第一次先不要勾大型 3D 資產
+- 按「↑ 上傳本機專案到 GitHub」
+- 成功後再用「檢查 GitHub 狀態」確認
+
+診斷檔：
+%LOCALAPPDATA%\QinglanZhi3Dgame1Launcher\github_sync.log
