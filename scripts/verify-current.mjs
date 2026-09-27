@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8').replace(/^\uFEFF/,'');
 const exists=p=>fs.existsSync(path.join(root,p));
-const must=(ok,msg)=>{if(!ok)throw new Error(`P0.27.1 VERIFY FAIL: ${msg}`);console.log('PASS ',msg);};
+const must=(ok,msg)=>{if(!ok)throw new Error(`P0.27.2 VERIFY FAIL: ${msg}`);console.log('PASS ',msg);};
 const pkg=JSON.parse(read('package.json'));
 const game=read('src/client/core/game.ts');
 const character=read('src/client/character/character.ts');
@@ -17,7 +17,7 @@ const look=read('src/client/rendering/commercial-lookdev.ts');
 const grade=read('src/client/rendering/cinematic-rendering-pipeline.ts');
 const navigation=read('src/shared/domains/navigation.ts');
 
-must(pkg.version==='0.27.1','package release is P0.27.1');
+must(pkg.version==='0.27.2','package release is P0.27.2');
 must(pkg.dependencies?.['@babylonjs/core']==='9.28.0'&&pkg.dependencies?.['@babylonjs/loaders']==='9.28.0','Babylon runtime packages are pinned');
 must(!exists('src/legacy-'+'three'),'former renderer source tree is physically absent');
 must(/new Engine\(/.test(game)&&/new Scene\(/.test(game)&&/CommercialLookDev/.test(game),'game bootstrap owns a Babylon Engine/Scene/LookDev stack');
@@ -32,4 +32,4 @@ must(/class Heap/.test(navigation)&&/function route/.test(navigation)&&!/babylon
 must(exists('src/assets/xianxia_world.glb'),'main world GLB is packaged');
 must(exists('public/assets/user-equipment/ice-mythic-sword.glb'),'user mythic sword GLB is packaged');
 must(exists('.github/workflows/ci.yml'),'GitHub Babylon release gate is packaged');
-console.log('P0.27.1 CURRENT VERIFICATION: PASS');
+console.log('P0.27.2 CURRENT VERIFICATION: PASS');

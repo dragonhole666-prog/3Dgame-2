@@ -60,7 +60,7 @@ export class CommercialLookDev {
   }
   private shadowMapSize(q:ShadowQuality){return q==='high'?2048:q==='medium'?1536:1024;}
   apply(graphics:GraphicsSettings){
-    this.sun.setEnabled(graphics.shadows);this.shadows.getShadowMap()!.refreshRate=graphics.shadows?1:0;
+    this.sun.setEnabled(graphics.shadows);const shadowMap=this.shadows.getShadowMap();if(shadowMap){shadowMap.refreshRate=0;if(graphics.shadows)shadowMap.resetRefreshCounter();}
     const post=graphics.postProcessing;this.post=post;configureSceneImageProcessing(this.scene,post);
     this.pipeline.fxaaEnabled=post!=='off';this.pipeline.bloomEnabled=post!=='off';
     this.pipeline.bloomThreshold=post==='cinematic'?.76:.82;this.pipeline.bloomWeight=post==='cinematic'?.20:post==='light'?.12:0;this.pipeline.bloomKernel=post==='cinematic'?64:36;
@@ -83,7 +83,7 @@ export class CommercialLookDev {
       this.ssao.totalStrength=level==='cinematic'?.72:.48;this.ssao.samples=level==='cinematic'?16:8;this.ssao.expensiveBlur=level==='cinematic';
     }
   }
-  registerShadowCaster(mesh:Mesh){this.shadows.addShadowCaster(mesh,true);mesh.receiveShadows=true;}
+  registerShadowCaster(mesh:Mesh){this.shadows.addShadowCaster(mesh,true);mesh.receiveShadows=true;const shadowMap=this.shadows.getShadowMap();if(shadowMap){shadowMap.refreshRate=0;shadowMap.resetRefreshCounter();}}
   createStaticReflectionProbe(meshes:Mesh[]){
     this.reflectionProbe?.dispose();const size=this.post==='cinematic'?256:128;const probe=new ReflectionProbe('QL-StaticEnvironmentProbe',size,this.scene,true,true);
     probe.position.set(0,5,-8);for(const mesh of meshes)if(mesh.isVisible&&mesh.isEnabled())probe.renderList?.push(mesh);probe.refreshRate=0;this.scene.environmentTexture=probe.cubeTexture;this.reflectionProbe=probe;

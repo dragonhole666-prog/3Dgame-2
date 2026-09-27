@@ -23,12 +23,16 @@ import { BabylonExpressionRuntime } from './babylon-expression-runtime';
 
 function splitUrl(url:string){const i=url.lastIndexOf('/');return {root:url.slice(0,i+1),file:url.slice(i+1)};}
 function mat(scene:Scene,name:string,color:string,rough=.58,metal=.03){const m=new PBRMaterial(name,scene);m.albedoColor=Color3.FromHexString(color);m.roughness=rough;m.metallic=metal;m.environmentIntensity=.72;return m;}
+function visualEquipmentKey(e:Partial<Record<Slot,ItemInstance>>){
+  return (Object.keys(e) as Slot[]).sort().map(slot=>`${slot}:${e[slot]?.baseId??''}`).join('|');
+}
+function customizationKey(c:CharacterCustomization){return JSON.stringify(c);}
 
 export class Character{
   readonly root:TransformNode;
   profile:WeaponProfile='sword';
   ready=false;failed=false;
-  private modelRoot?:TransformNode;private animations:AnimationGroup[]=[];private animationRuntime=new BabylonCharacterAnimationRuntime('sword');private expressionRuntime=new BabylonExpressionRuntime();private equipmentRoot:TransformNode;private equipmentRuntime:BabylonEquipmentRuntime;private flightRig:TransformNode;private avatar:AvatarCandidateId;private equipmentVisible=true;private disposed=false;private equipment:Partial<Record<Slot,ItemInstance>>={};private custom?:CharacterCustomization;private proceduralPhase=0;private rightHand?:TransformNode;
+  private modelRoot?:TransformNode;private animations:AnimationGroup[]=[];private animationRuntime=new BabylonCharacterAnimationRuntime('sword');private expressionRuntime=new BabylonExpressionRuntime();private equipmentRoot:TransformNode;private equipmentRuntime:BabylonEquipmentRuntime;private flightRig:TransformNode;private avatar:AvatarCandidateId;private equipmentVisible=true;private disposed=false;private equipment:Partial<Record<Slot,ItemInstance>>={};private equipmentVisualKey='';private custom?:CharacterCustomization;private customVisualKey='';private proceduralPhase=0;private rightHand?:TransformNode;
   constructor(private scene:Scene,def:CharacterDefinition=CHARACTERS[0],private mode:'player'|'npc'='player',candidate?:AvatarCandidateId){
     this.root=new TransformNode('QL-Character',scene);this.root.scaling.set(def.build,def.height,def.build);this.avatar=candidate??getAvatarCandidate();
     this.equipmentRoot=new TransformNode('QL-EquipmentFallback',scene);this.equipmentRoot.parent=this.root;this.equipmentRuntime=new BabylonEquipmentRuntime(scene,this.root);
@@ -62,9 +66,9 @@ export class Character{
   }
   private applyCustomization(){if(!this.custom)return;const c=this.custom;const sx=.92+(c.shoulderWidth??50)/500,sy=.95+(c.height??50)/1000;this.modelRoot?.scaling.set(sx,sy,sx);}
   setAvatarCandidate(id:AvatarCandidateId,_def:CharacterDefinition=CHARACTERS[0]){if(id===this.avatar)return;this.avatar=id;void this.loadAvatar(id);}
-  setCustomization(c:CharacterCustomization){this.custom={...c};this.applyCustomization();}
+  setCustomization(c:CharacterCustomization){const key=customizationKey(c);if(key===this.customVisualKey)return;this.customVisualKey=key;this.custom={...c};this.applyCustomization();}
   setEquipmentVisible(v:boolean){this.equipmentVisible=v;this.equipmentRoot.setEnabled(v);this.equipmentRuntime.setEnabled(v);if(v)this.rebuildEquipment();else this.equipmentRuntime.clear();}
-  setEquipment(e:Partial<Record<Slot,ItemInstance>>){this.equipment={...e};this.rebuildEquipment();}
+  setEquipment(e:Partial<Record<Slot,ItemInstance>>){const key=visualEquipmentKey(e);if(key===this.equipmentVisualKey)return;this.equipmentVisualKey=key;this.equipment={...e};this.rebuildEquipment();}
   previewAnimation(name:string){if(this.animationRuntime.preview(name))return true;const key=name.toLowerCase();this.proceduralPhase=key.includes('attack')?10:key.includes('run')?20:1;return true;}
   predictAttack(skill:string,now:number){this.proceduralPhase=10;return this.animationRuntime.predictAttack(skill,now)||true;}
   playPickup(_itemId:string,_rarity:Rarity,_now:number,_mode?:string){this.proceduralPhase=30;}

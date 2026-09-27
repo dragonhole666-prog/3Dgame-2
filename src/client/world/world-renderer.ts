@@ -56,7 +56,7 @@ function createSky(scene:Scene){
 export class WorldRenderer{
   readonly root:TransformNode;
   readonly terrain:Mesh;
-  readonly collision:AbstractMesh[]=[];
+  readonly collision=new Set<AbstractMesh>();
   private fallbackTerrain:Mesh;
   private heroGarden:XianxiaHeroGarden;
   private atmosphere:XianxiaCinematicAtmosphere;
@@ -67,7 +67,7 @@ export class WorldRenderer{
   private loaded=false;
   constructor(private scene:Scene,initialDetail:Detail='balanced',private lookdev?:CommercialLookDev){
     this.detail=initialDetail;this.root=new TransformNode('QL-WorldRoot',scene);createSky(scene).parent=this.root;
-    this.terrain=buildTerrain(scene,'QL-AuthoritativeTerrainRaycast',false);this.terrain.parent=this.root;this.collision.push(this.terrain);
+    this.terrain=buildTerrain(scene,'QL-AuthoritativeTerrainRaycast',false);this.terrain.parent=this.root;this.collision.add(this.terrain);
     this.fallbackTerrain=buildTerrain(scene,'QL-VisibleTerrainFallback',true);this.fallbackTerrain.parent=this.root;
     this.heroGarden=new XianxiaHeroGarden(scene,{x:WORLD.spawn.x,z:WORLD.spawn.z},initialDetail);this.heroGarden.root.parent=this.root;
     this.atmosphere=new XianxiaCinematicAtmosphere(scene,{x:WORLD.spawn.x,z:WORLD.spawn.z},initialDetail);this.atmosphere.root.parent=this.root;
@@ -78,7 +78,7 @@ export class WorldRenderer{
     try{
       const result=await SceneLoader.ImportMeshAsync(null,'/assets/user-world/','xianxia_world.glb',this.scene,undefined,'.glb');
       const holder=new TransformNode('QL-PrimaryWorld',this.scene);holder.parent=this.root;this.primaryRoot=holder;
-      for(const m of result.meshes){if(!(m instanceof Mesh))continue;m.parent=holder;m.isPickable=true;m.receiveShadows=true;applyXianxiaWorldArtDirection(m);this.primaryMeshes.push(m);this.collision.push(m);if(this.lookdev)this.lookdev.registerShadowCaster(m);}
+      for(const m of result.meshes){if(!(m instanceof Mesh))continue;m.parent=holder;m.isPickable=true;m.receiveShadows=true;applyXianxiaWorldArtDirection(m);this.primaryMeshes.push(m);this.collision.add(m);if(this.lookdev)this.lookdev.registerShadowCaster(m);}
       if(!this.primaryMeshes.length)throw new Error('GLB 未包含可渲染 Mesh');
       this.fallbackTerrain.setEnabled(false);this.loaded=true;this.heroGarden.addWaterRenderList(this.primaryMeshes);
       if(this.lookdev){const env=[...this.primaryMeshes,...this.heroGarden.meshes].filter((m):m is Mesh=>m instanceof Mesh);this.lookdev.createStaticReflectionProbe(env);}
@@ -87,7 +87,7 @@ export class WorldRenderer{
   }
   update(_position:{x:number;z:number},time:number){this.heroGarden.update(time);this.atmosphere.update(time);this.horizon.update(time);}
   setHighDetailAssets(enabled:boolean){this.setModelDetail(enabled?this.detail:'low');}
-  setModelDetail(detail:Detail){this.detail=detail;this.heroGarden.setDetail(detail);this.atmosphere.setDetail(detail);this.horizon.setDetail(detail);for(const mesh of this.primaryMeshes)mesh.alwaysSelectAsActiveMesh=detail==='high';}
+  setModelDetail(detail:Detail){this.detail=detail;this.heroGarden.setDetail(detail);this.atmosphere.setDetail(detail);this.horizon.setDetail(detail);for(const mesh of this.primaryMeshes)mesh.alwaysSelectAsActiveMesh=false;}
   setVegetationQuality(quality:'off'|'low'|'full'){if(quality==='off')this.heroGarden.setDetail('low');else this.heroGarden.setDetail(quality==='full'?this.detail:'balanced');}
   setChunkRadius(_radius:number){}
   get loadedChunks(){return this.loaded?1:0;}

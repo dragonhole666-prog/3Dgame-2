@@ -1,4 +1,4 @@
-# 青嵐志 · P0.27.1 Babylon.js Only
+# 青嵐志 · P0.27.2 Babylon.js Only · Performance Hotfix
 
 此版本將瀏覽器 3D runtime 完整統一為 **Babylon.js**。舊 renderer source tree 已實體刪除，不保留平行 scene graph、不提供舊引擎 fallback，也不允許在 client、editor 或 authoritative navigation 重新引入第二套 3D runtime。
 

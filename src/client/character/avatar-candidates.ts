@@ -42,5 +42,7 @@ export function avatarCandidate(id:string|undefined|null){
  return AVATAR_CANDIDATES.find(x=>x.id===normalized)??AVATAR_CANDIDATES[0];
 }
 export function saveAvatarCandidate(id:AvatarCandidateId){setAvatarCandidate(id);}
-// NPCs stay on the authored Qinglan avatar; player selection must not silently restyle all NPCs.
-export function npcAvatarCandidate(_index:number):AvatarCandidateId{return 'qinglan-main';}
+// NPCs use the lighter authored base avatars. The former implementation loaded the 81-primitive
+// 18 MB main VRM once per NPC at spawn, multiplying draw calls and embedded texture memory.
+// Equipment/outfits still provide NPC visual identity while the local player keeps the selected hero avatar.
+export function npcAvatarCandidate(index:number):AvatarCandidateId{return index%2===0?'base-male':'base-female';}

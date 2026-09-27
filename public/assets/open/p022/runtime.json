@@ -1,5 +1,5 @@
 {
-  "release": "P0.27.1",
+  "release": "P0.27.2",
   "provider": "Babylon.js local character library (VRM/glTF assets)",
   "enabled": true,
   "defaultCandidate": "qinglan-main",
